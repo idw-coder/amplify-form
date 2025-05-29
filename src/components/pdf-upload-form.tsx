@@ -10,6 +10,7 @@ const PdfUploadForm = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadResult, setUploadResult] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ファイル選択処理
@@ -28,36 +29,34 @@ const PdfUploadForm = () => {
     fileInputRef.current?.click();
   };
 
-  // アップロード処理（シンプル版）
-const handleUpload = async () => {
+  // アップロード処理
+  const handleUpload = async () => {
     if (!selectedFile) return;
   
     setIsUploading(true);
     setUploadProgress(20);
+    setUploadResult(null);
   
     try {
       console.log('🚀 アップロード開始:', selectedFile.name);
   
-      // FormDataを作成
       const formData = new FormData();
       formData.append('file', selectedFile);
   
       setUploadProgress(50);
   
-      // fetch APIを使用してPOST
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
   
       setUploadProgress(80);
-  
       const result = await response.json();
   
       if (response.ok) {
         console.log('✅ 成功:', result);
         setUploadProgress(100);
-        alert(`成功: ${result.message}`);
+        setUploadResult(result);
       } else {
         console.error('❌ エラー:', result);
         alert(`エラー: ${result.error}`);
@@ -69,6 +68,13 @@ const handleUpload = async () => {
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 2000);
+    }
+  };
+  
+  // PDFプレビュー関数
+  const handlePreviewPDF = () => {
+    if (uploadResult?.path) {
+      window.open(uploadResult.path, '_blank');
     }
   };
 
@@ -85,7 +91,7 @@ const handleUpload = async () => {
     <div className="max-w-md mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>PDF & ドロップ</CardTitle>
+          <CardTitle>PDF アップロード</CardTitle>
           <CardDescription>
             PDFファイルをアップロードしてください
           </CardDescription>
@@ -144,6 +150,48 @@ const handleUpload = async () => {
           >
             {isUploading ? 'アップロード中...' : 'アップロード'}
           </Button>
+
+          {/* アップロード成功表示 */}
+          {uploadResult && (
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="pt-4">
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-green-800">
+                    ✅ {uploadResult.message}
+                  </p>
+                  <div className="space-y-1">
+                    <p className="text-sm text-green-700">
+                      ファイル名: {uploadResult.originalName}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      サイズ: {Math.round(uploadResult.size / 1024)} KB
+                    </p>
+                    <p className="text-xs text-green-600">
+                      保存先: {uploadResult.path}
+                    </p>
+                  </div>
+                  
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      onClick={handlePreviewPDF}
+                      variant="outline"
+                      size="sm"
+                      className="text-green-700 border-green-300 hover:bg-green-100"
+                    >
+                      👁️ PDFを確認
+                    </Button>
+                    <a
+                      href={uploadResult.path}
+                      download={uploadResult.originalName}
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-transparent border border-green-300 rounded-md hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                      📥 ダウンロード
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </CardContent>
       </Card>
     </div>
