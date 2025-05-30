@@ -4,18 +4,18 @@ import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📤 アップロードリクエストを受信しました');
+    console.log('アップロードリクエストを受信しました');
     
     // FormDataを取得
     const data = await request.formData();
     const file: File | null = data.get('file') as unknown as File;
 
     if (!file) {
-      console.log('❌ ファイルがありません');
+      console.log('ファイルがありません');
       return NextResponse.json({ error: 'ファイルがありません' }, { status: 400 });
     }
 
-    console.log('📄 受信したファイル:', {
+    console.log('受信したファイル:', {
       name: file.name,
       size: file.size,
       type: file.type
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // PDFファイルかチェック
     if (file.type !== 'application/pdf') {
-      console.log('❌ PDFファイルではありません:', file.type);
+      console.log('PDFファイルではありません:', file.type);
       return NextResponse.json({ error: 'PDFファイルのみ受け付けます' }, { status: 400 });
     }
 
@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
 
     // ファイルを保存
     await writeFile(uploadPath, buffer);
-    console.log('💾 ファイルを保存しました:', uploadPath);
+    console.log('ファイルを保存しました:', uploadPath);
     
     return NextResponse.json({ 
-      message: 'アップロード完了！',
+      message: 'アップロード完了',
       fileName: fileName,
       originalName: file.name,
       size: file.size,
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('💥 APIエラー:', error);
+    console.error('APIエラー:', error);
     return NextResponse.json({ error: 'ファイル保存に失敗しました' }, { status: 500 });
   }
 }
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 // GETメソッドでAPIの動作確認
 export async function GET() {
   return NextResponse.json({ 
-    message: 'PDF Upload API is working!',
+    message: 'PDF Upload API is working',
     timestamp: new Date().toISOString()
   });
 }

@@ -1,4 +1,3 @@
-// components/pdf-upload-form.tsx
 'use client'
 
 import React, { useState, useRef } from 'react';
@@ -38,7 +37,7 @@ const PdfUploadForm = () => {
     setUploadResult(null);
   
     try {
-      console.log('🚀 アップロード開始:', selectedFile.name);
+      console.log('アップロード開始:', selectedFile.name);
   
       const formData = new FormData();
       formData.append('file', selectedFile);
@@ -54,16 +53,16 @@ const PdfUploadForm = () => {
       const result = await response.json();
   
       if (response.ok) {
-        console.log('✅ 成功:', result);
+        console.log('成功:', result);
         setUploadProgress(100);
         setUploadResult(result);
       } else {
-        console.error('❌ エラー:', result);
+        console.error('エラー:', result);
         alert(`エラー: ${result.error}`);
       }
   
     } catch (error) {
-      console.error('💥 送信エラー:', error);
+      console.error('送信エラー:', error);
       alert('送信に失敗しました');
     } finally {
       setIsUploading(false);
@@ -112,7 +111,7 @@ const PdfUploadForm = () => {
               className="w-full"
               disabled={isUploading}
             >
-              📄 ファイルを選択
+              ファイルを選択
             </Button>
           </div>
 
@@ -157,7 +156,7 @@ const PdfUploadForm = () => {
               <CardContent className="pt-4">
                 <div className="space-y-3">
                   <p className="text-sm font-medium text-green-800">
-                    ✅ {uploadResult.message}
+                    {uploadResult.message}
                   </p>
                   <div className="space-y-1">
                     <p className="text-sm text-green-700">
@@ -178,14 +177,14 @@ const PdfUploadForm = () => {
                       size="sm"
                       className="text-green-700 border-green-300 hover:bg-green-100"
                     >
-                      👁️ PDFを確認
+                      PDFを確認
                     </Button>
                     <a
                       href={uploadResult.path}
                       download={uploadResult.originalName}
                       className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-transparent border border-green-300 rounded-md hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                     >
-                      📥 ダウンロード
+                      ダウンロード
                     </a>
                   </div>
                 </div>
