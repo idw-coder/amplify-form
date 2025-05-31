@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
 import path from "path";
+import os from "os";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,8 +41,10 @@ export async function POST(request: NextRequest) {
     // ファイル名を生成（タイムスタンプ付きで重複を防ぐ）
     const timestamp = Date.now();
     const fileName = `${timestamp}-${file.name}`;
-    // const uploadPath = path.join(process.cwd(), 'public', 'uploads', fileName);
-    const uploadPath = path.join("/tmp", fileName); // Lambda対応
+    
+    // OSごとに適切な一時フォルダを取得
+    const tempDir = os.tmpdir();
+    const uploadPath = path.join(tempDir, fileName);
 
     // ファイルを保存
     await writeFile(uploadPath, buffer);
