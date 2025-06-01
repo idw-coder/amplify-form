@@ -36,17 +36,17 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // ファイル名を生成（タイムスタンプ付きで重複を防ぐ）
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name}`;
+    // FastAPIへ送信するFormDataを作成
+    const formData = new FormData();
+    formData.append("file", new Blob([buffer], { type: file.type }), file.name);
 
-    // // OSごとに適切な一時フォルダを取得
-    // const tempDir = os.tmpdir();
-    // const uploadPath = path.join(tempDir, fileName);
+    const fastApiResponse = await fetch("https://nngg2zrdpm.ap-northeast-1.awsapprunner.com/", {
+      method: "POST",
+      body: formData,
+    });
 
-    // // ファイルを保存
-    // await writeFile(uploadPath, buffer);
-    // console.log("ファイルを保存しました:", uploadPath);
+    const fastApiResult = await fastApiResponse.json();
+    console.log("FastAPIの応答:", fastApiResult);
 
     return new NextResponse(buffer, {
       status: 200,
