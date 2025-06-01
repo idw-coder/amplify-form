@@ -1,9 +1,15 @@
-'use client'
+"use client";
 
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import React, { useState, useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 interface UploadResult {
   message: string;
@@ -23,11 +29,11 @@ const PdfUploadForm = () => {
   // ファイル選択処理
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
+    if (file && file.type === "application/pdf") {
       setSelectedFile(file);
-      console.log('選択されたファイル:', file.name);
+      console.log("選択されたファイル:", file.name);
     } else {
-      alert('PDFファイルを選択してください');
+      alert("PDFファイルを選択してください");
     }
   };
 
@@ -39,59 +45,66 @@ const PdfUploadForm = () => {
   // アップロード処理
   const handleUpload = async () => {
     if (!selectedFile) return;
-  
+
     setIsUploading(true);
     setUploadProgress(20);
     setUploadResult(null);
-  
+
     try {
-      console.log('アップロード開始:', selectedFile.name);
-  
+      console.log("アップロード開始:", selectedFile.name);
+
       const formData = new FormData();
-      formData.append('file', selectedFile);
-  
+      formData.append("file", selectedFile);
+
       setUploadProgress(50);
-  
-      const response = await fetch('/api/upload', {
-        method: 'POST',
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
         body: formData,
       });
-  
+
       setUploadProgress(80);
-      const result = await response.json();
-  
+
       if (response.ok) {
-        console.log('成功:', result);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        setUploadResult({
+          message: "アップロード完了",
+          fileName: selectedFile.name,
+          originalName: selectedFile.name,
+          size: selectedFile.size,
+          path: blobUrl,
+        });
+
         setUploadProgress(100);
-        setUploadResult(result);
       } else {
-        console.error('エラー:', result);
+        const result = await response.json();
         alert(`エラー: ${result.error}`);
       }
-  
     } catch (error) {
-      console.error('送信エラー:', error);
-      alert('送信に失敗しました');
+      console.error("送信エラー:", error);
+      alert("送信に失敗しました");
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 2000);
     }
   };
-  
+
   // PDFプレビュー関数
   const handlePreviewPDF = () => {
     if (uploadResult?.path) {
-      window.open(uploadResult.path, '_blank');
+      window.open(uploadResult.path, "_blank");
     }
   };
 
   // ファイルサイズを読みやすい形式に変換
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   return (
@@ -155,7 +168,7 @@ const PdfUploadForm = () => {
             disabled={!selectedFile || isUploading}
             className="w-full"
           >
-            {isUploading ? 'アップロード中...' : 'アップロード'}
+            {isUploading ? "アップロード中..." : "アップロード"}
           </Button>
 
           {/* アップロード成功表示 */}
@@ -177,7 +190,7 @@ const PdfUploadForm = () => {
                       保存先: {uploadResult.path}
                     </p>
                   </div>
-                  
+
                   <div className="flex gap-2 pt-2">
                     <Button
                       onClick={handlePreviewPDF}

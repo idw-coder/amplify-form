@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
-import os from "os";
+// import { writeFile } from "fs/promises";
+// import path from "path";
+// import os from "os";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("アップロードリクエストを受信しました");
-
     // FormDataを取得
     const data = await request.formData();
     const file: File | null = data.get("file") as unknown as File;
@@ -41,22 +39,21 @@ export async function POST(request: NextRequest) {
     // ファイル名を生成（タイムスタンプ付きで重複を防ぐ）
     const timestamp = Date.now();
     const fileName = `${timestamp}-${file.name}`;
-    
-    // OSごとに適切な一時フォルダを取得
-    const tempDir = os.tmpdir();
-    const uploadPath = path.join(tempDir, fileName);
 
-    // ファイルを保存
-    await writeFile(uploadPath, buffer);
-    console.log("ファイルを保存しました:", uploadPath);
+    // // OSごとに適切な一時フォルダを取得
+    // const tempDir = os.tmpdir();
+    // const uploadPath = path.join(tempDir, fileName);
 
-    return NextResponse.json({
-      message: "アップロード完了",
-      fileName: fileName,
-      originalName: file.name,
-      size: file.size,
-      //   path: `/uploads/${fileName}`,
-      path: uploadPath,
+    // // ファイルを保存
+    // await writeFile(uploadPath, buffer);
+    // console.log("ファイルを保存しました:", uploadPath);
+
+    return new NextResponse(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="${file.name}"`,
+      },
     });
   } catch (error) {
     console.error("APIエラー:", error);
